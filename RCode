@@ -1,0 +1,48 @@
+library(rtweet)
+library(dplyr)
+
+#After accessing twitter API
+hindsight <- search_tweets(
+  q = "hindsight 2020 since:2021-01-01",
+  n = 18000,
+  token = token)
+
+march307th <- search_tweets(
+  q = "march 307th since:2021-01-01",
+  n = 3000,
+  token = token)
+  
+march308th <- search_tweets(
+  q = "march 308th since:2021-01-01",
+  n = 3000,
+  token = token)
+  
+dec32 <- search_tweets(
+  q = "december 32nd since:2021-01-01",
+  n = 18000,
+  token = token)
+  
+good_riddance <- search_tweets(
+  q = "good riddance 2020 since:2021-01-01",
+  n = 18000,
+  token = token)
+  
+#Added a column so I could identify each tweet by the relevant phrase when I combine into one df
+hindsight <- hindsight %>% mutate(phrase = "hindsight")
+good_riddance <- good_riddance %>% mutate(phrase = "good riddance")
+march307th <- march307th %>% mutate(phrase = "March 307th")
+march308th <- march308th %>% mutate(phrase = "March 308th")
+dec32 <- dec32 %>% mutate(phrase = "December 32nd")
+
+#combine into one df
+NYEtweets<-rbind(hindsight, good_riddance, march300th, march307th, march308th, dec32)
+
+#convert to eastern time
+Sys.setlocale("LC_TIME", "English")
+NYEtweets$created_at <- as_datetime(as.POSIXct(NYEtweets$created_at, "Y-%m-%d %H:%M%OS"), tz = "EST")
+
+#selected relevant fields and made data frame exportable
+NYEtweets2 <- NYEtweets %>% select(created_at, screen_name, text, source, is_retweet, favorite_count, retweet_count, hashtags, location, followers_count, phrase)
+NYEtweets_final <- data.frame(lapply(NYEtweets2, as.character), stringsAsFactors = FALSE)
+
+
